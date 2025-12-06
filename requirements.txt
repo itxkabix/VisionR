@@ -1,0 +1,81 @@
+# -------------------------
+# Core Backend Framework
+# -------------------------
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+
+# -------------------------
+# Database & ORM
+# -------------------------
+SQLAlchemy==2.0.30
+alembic==1.13.1
+psycopg2-binary==2.9.9   # PostgreSQL driver
+
+# -------------------------
+# Authentication & Security
+# -------------------------
+python-jose==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+
+# -------------------------
+# WebSockets & Streaming
+# -------------------------
+websockets==12.0
+python-multipart==0.0.9
+
+# -------------------------
+# Machine Learning – Face
+# -------------------------
+opencv-python==4.10.0.84
+mediapipe==0.10.14
+deepface==0.0.93
+
+# -------------------------
+# Machine Learning – Voice
+# -------------------------
+librosa==0.10.2
+numpy==1.26.4
+scipy==1.13.1
+soundfile==0.12.1
+torch==2.3.1
+torchaudio==2.3.1
+
+# -------------------------
+# Machine Learning – Text
+# -------------------------
+transformers==4.41.2
+sentencepiece==0.2.0
+huggingface-hub==0.23.0
+spacy==3.7.4
+# spaCy English model (downloaded from URL)
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
+
+# -------------------------
+# JSON & Utilities
+# -------------------------
+pydantic==2.7.1
+python-dotenv==1.0.1
+orjson==3.10.3
+
+# -------------------------
+# Logging & Monitoring
+# -------------------------
+loguru==0.7.2
+
+# -------------------------
+# Cache / Queue (optional)
+# -------------------------
+redis==5.0.4
+
+# -------------------------
+# LLM / OpenAI
+# -------------------------
+openai==1.35.3
+
+# -------------------------
+# Extra Support Libraries
+# -------------------------
+requests==2.32.2
+tqdm==4.66.4
+pandas==2.2.2

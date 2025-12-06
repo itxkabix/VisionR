@@ -1,32 +1,21 @@
-# TODO: implement
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.gzip import GZIPMiddleware
+from starlette.middleware.gzip import GZipMiddleware
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
-from app.config import settings  # type: ignore
-from app.middleware import ErrorHandlingMiddleware  # type: ignore
-from app.routers import auth, chat, emotion, dashboard, health  # type: ignore
-from app.db.database import Base, engine  # type: ignore
-
-
-# Create DB tables on startup (for simple setups; in prod use Alembic)
-Base.metadata.create_all(bind=engine)
+from app.config import settings
+from app.dependencies import get_db
+from app.db.database import Base, engine
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Application lifespan context.
-
-    Use this for:
-    - Loading ML models into memory once
-    - Initializing connection pools / caches
-    - Cleaning up resources on shutdown
-    """
-    # TODO: initialize shared ML services, caches, etc.
+    # TODO: load ML models later (face, voice, text)
     yield
-    # TODO: gracefully close connections, flush logs, etc.
+    # TODO: cleanup resources here if needed
 
 
 app = FastAPI(
@@ -35,31 +24,35 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Ensure ORM models have tables (no-op if already created by schema.sql)
+Base.metadata.create_all(bind=engine)
 
-# Middleware configuration
-app.add_middleware(GZIPMiddleware, minimum_size=1000)
+# ---------- Middleware ----------
+
+origins = settings.cors_origins or ["http://localhost:5173"]
+
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,  # e.g. ["http://localhost:5173"]
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(ErrorHandlingMiddleware)
+
+# ---------- Health Endpoints ----------
 
 
-# Router registration
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
-app.include_router(emotion.router, prefix="/api/emotion", tags=["emotion"])
-app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
-app.include_router(health.router, prefix="/api", tags=["health"])
+@app.get("/api/health")
+async def health_check() -> dict:
+    return {"status": "ok", "service": "rivion-backend"}
 
 
-@app.get("/")
-async def root() -> dict:
-    """Simple root endpoint to verify API is running."""
-    return {"message": "RIVION backend is running"}
+@app.get("/api/health/db")
+def db_health_check(db: Session = Depends(get_db)) -> dict:
+    db.execute(text("SELECT 1"))
+    return {"status": "ok", "database": "connected"}
 
 
 if __name__ == "__main__":
